@@ -33,19 +33,24 @@ class Keystone:
     credentials_ = None
     tenantId_ = None
     
-    def __init__(self, url, username, password, tenant):
+    def __init__(self, url, username, password, tenant, tenantid = None):
         self.url_ = url
         self.username_ = username
         self.password_ = password
-        self.tenant_ = tenant
-        credentials = json.dumps({"auth":{"passwordCredentials": {"username": "%s" % self.username_ , "password": "%s" % self.password_}, "tenantName": "%s" %  self.tenant_}})
+        if tenantid is None:
+            self.tenant_ = tenant
+            credentials = json.dumps({"auth":{"passwordCredentials": {"username": "%s" % self.username_ , "password": "%s" % self.password_}, "tenantName": "%s" %  self.tenant_}})
+        else:
+            self.tenantId_ = tenantid
+            credentials = json.dumps({"auth":{"passwordCredentials": {"username": "%s" % self.username_ , "password": "%s" % self.password_}, "tenantId": "%s" %  self.tenantId_}})
         headers = {"Content-Type": "application/json"}
         r = requests.post("%s/tokens" % self.url_, headers=headers, data=credentials, verify=False)
         if r.status_code==200:
             self.credentials_ = r.json()
             self.token_ = self.credentials_['access']['token']['id']
             self.tenantId_ = self.credentials_['access']['token']['tenant']['id']
-        
+            self.tenant_ = self.credentials_['access']['token']['tenant']['name']
+
     def getToken(self):
         if self.token_==None:
             return None

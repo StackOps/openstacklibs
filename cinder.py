@@ -44,6 +44,17 @@ class Cinder:
             data = None
         return data
 
+    def get_all_snapshots(self, tenant_id):
+        headers = {"X-Auth-Token": "%s" % self.token_, "Content-Type": "application/json"}
+        r = requests.get("%s/%s/snapshots" % (self.url_, tenant_id), headers=headers, verify=False)
+        if r.status_code == 200:
+            data = r.json()
+            if 'error' in data:
+                raise Exception(data['error']['message'])
+        else:
+            data = None
+        return data
+
     def get_all_global_volumes(self, tenant_id):
         headers = {"X-Auth-Token": "%s" % self.token_, "Content-Type": "application/json"}
         r = requests.get("%s/%s/volumes/detail?all_tenants=1" % (self.url_, tenant_id), headers=headers, verify=False)
